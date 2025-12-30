@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# 
+# Siddharth Dushantha 2025
+#
+# Wrapper around 'ss -tunlp' for a cleaner output.
+#
+
+{
+    # Extra padding is needed so that the underlines under the column heading
+    # "User" matches the length for the longest line. 'useradd' has a maximum
+    # username length of 32 characters. So by adding 32 extra whitespaces, we
+    # will ensure that the underline will never be too short. It will also
+    # never be too long since 'column' splits the input based on whitespace
+    # and will therefore ignore any trailing whitespaces.
+    extra_padding=$(printf "%*s" 32 "")
+
+    output=$(ss -tulnp | awk '/LISTEN/ {
+        match($0, /"([^"]+)"/, _process)
+        process = _process[1] ? _process[1] : "*"
+
+        match($0, /pid=([0-9]+)/, _pid)
+        pid = _pid[1] ? _pid[1] : "*"
+
+        split($5, _port, ":")
+        port = _port[length(_port)]
+
+        match($5, /^(.*):/, ip)
+
+        if (process == "*") {
+            user = " ?"
+        } else {
+            cmd = "ps -o user= -p " pid
+            cmd | getline user
+            close(cmd)
+        }
+
+        print port, process, pid, ip[1], user
+    }' | sort -n)
+
+    [[ -z "$output" ]] && exit
+
+    echo -e "\e[1;37;4mPort Process PID IP User$extra_padding\e[0m"
+    echo "$output"
+    
+} | column -t -o "  "
