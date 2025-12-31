@@ -1,7 +1,7 @@
 <h1 align="center"><code>oports</code></h1>
 <p align="center">A wrapper around <code>ss -tunlp</code> to display cleaner output</p>
 <p align="center">
-<img width=50% src="assets/preview.png"/>
+<img width=60% src="assets/preview.png"/>
 </p>
 
 ## Installation
