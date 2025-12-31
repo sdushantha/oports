@@ -5,20 +5,28 @@
 # Wrapper around 'ss -tunlp' for a cleaner output.
 #
 
-usage(){
-    echo "Usage: oports [FILTER]
+version="1.0.0"
 
-Available Filters
+usage(){
+    echo "USAGE: oports [OPTION] | [FILTER]
+
+OPTIONS
+-h, --help
+        Show help
+--version
+        Show version
+
+AVAILABLE FILTERS
   port    Filter by port number
   proc    Filter by proccess name
   pid     Filter by process ID
   ip      Filter by IP 
   user    Filter by owning user
 
-Filter Syntax
+FILTER SYNTAX
   <key>:<value>
 
-Example Usages
+EXAMPLE USAGES
   oports
   oports proc:nc
   oports ip:0.0.0.0
@@ -90,6 +98,7 @@ main(){
     while [ "$1" ]; do
         case "$1" in
             --help | -h) usage && exit ;;
+            --version) echo "$version" && exit ;;
             *:*) list_open_ports "$1" && exit ;;
             -*) echo "Option '$1' does not exist" && exit 1;;
         esac
