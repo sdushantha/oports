@@ -54,16 +54,22 @@ list_open_ports() {
     extra_padding=$(printf "%*s" 32 "")
 
     output=$(ss -tulnp | awk '/LISTEN/ {
-        match($0, /"([^"]+)"/, _process)
-        process = _process[1] ? _process[1] : "*"
+        process = "*"
+        if (match($0, /"([^"]+)"/)) {
+            process = substr($0, RSTART + 1, RLENGTH - 2)
+        }
 
-        match($0, /pid=([0-9]+)/, _pid)
-        pid = _pid[1] ? _pid[1] : "*"
+        pid = "*"
+        if (match($0, /pid=([0-9]+)/)) {
+            pid = substr($0, RSTART + 4, RLENGTH - 4)
+        }
 
         split($5, _port, ":")
         port = _port[length(_port)]
 
-        match($5, /^(.*):/, ip)
+        if (match($5, /^(.*):/)) {
+            ip = substr($5, RSTART, RLENGTH - 1)
+        }
 
         if (process == "*") {
             user = " ?"
@@ -73,7 +79,7 @@ list_open_ports() {
             close(cmd)
         }
 
-        print port, process, pid, ip[1], user
+        print port, process, pid, ip, user
     }' | sort -n)
 
 
